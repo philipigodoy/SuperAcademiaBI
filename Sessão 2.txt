@@ -1,0 +1,223 @@
+FFMÓDULO PL/SQL
+
+usuario e senha master: 
+SYS/ System - mestredobi
+
+Ambiente oracle
+
+1 - usuário/ esquema
+	Local onde será armazenado todas as operações e tabelas criadas
+	usuário é quando o local esta vazio e esquema(schema) é quando ele ter permissão para criar objetos no banco
+2 - Conceder Previlégios
+	Permitir que o usuário possa manipular os dados
+3 - Analisar os scripts SQL
+	Criação dos objetos do banco e povoar esses objetos com dados
+4 - Visualizar o ambiente
+	
+Tipos de comando SQL
+
+DDL -> Data Definiton Language (create, alter, drop em tabelas, indices e procedures) 
+DML -> Data Manipulation Language (insert, update, delete, select em linhas das tabelas)
+DCL -> Data Control Language (grant e revoke, permite dar permissão ou remover a comandos do banco) 	GRANT ON REVOKE FROM
+
+
+-----
+
+CREATE USER aluno /* CRIA USUARIO ALUNO */
+IDENTIFIED BY aluno /* DEFINE SENHA DE ACESSO*/
+DEFAULT TABLESPACE Users /* DEFINE O LOCAL ONDE SERAO ARMAZENADOS OS DADOS*/
+TEMPORARY TABLESPACE Temp; /*UTILIZADO PARA POVOAR AS TABELAS */
+
+ALTER USER aluno IDENTIFIED BY treinamento; /*ALTERAR SENHA */
+
+GRANT DBA TO aluno; /*PERMISSÃO DE DBA PARA aluno*/
+
+
+-- CONTRAINS São restrições em colunas do banco. 
+	PRIMARY KEY(PK) - Chave primária para identificação da tabela
+	UNIQUE - Determina que uma valor deve ser único na tabela
+	FOREIGN KEY (FK) - Um ou mais campos de outra tabela presente na tabela atual (Relacionamento)
+	CHECK - Realiza a conferência do valor inserido
+	NOT NULL - Não permite valores nulos na inserção do dado
+
+COMMIT/ ROOLBACK SÓ SÃO USADOS EM COMANDOS *"DML"*
+
+--- DISTINCT COUNT exibe apenas um valor de cada campo, quando utilizar mais de um campo ele fará a junção única para os 
+dois campos
+	SUBSTR(campo, posição,qtd caracteres) = ''; realiza filtro por caracter
+	EXTRACT(XXX FROM YYYY) EXTRAIR DIA/MES/ANO do campo data
+	CASE campo,
+	WHEN condicao THEN variacao
+	..
+	..
+	..
+	ELSE variacao
+	END/ END campo
+
+-- AGREGADORES SUM, MAX, MIN, AVG, COUNT uliliza o GROUP BY 
+	HAVING REALIZA FILTROS no select
+	TO CHAR(AVG(campo), '99.99') pode se usar qualquer atributo agregacao
+	
+UNIÃO - union [all]
+INTERSECCAO - INTERSECT
+DIFERENÇA ENTRE TABELAS - MINUS
+
+---- OPERADORES LÓGICOS
+	DE COMPARAÇÃO >, >= ... 
+		usados para comparação com 1 valor
+	IN, NOT IN 
+	usado para comparação com varios valores
+
+	EXISTS/ NOT EXISTS (SÃO MAIS PERFORMÁTICOS)
+	Realiza a comparação entre os campos dos 2 selects
+	
+
+--- CONSULTAS HIERARQUIZADAS (auto relacionamento na mesma tabela)
+	utilizam START WITH E CONNECT BY	
+
+
+--- VIEWS	
+	CREATE OR REPLACE VIEW
+	AS 
+	SELECT
+	..	
+	..
+	..
+
+
+---------------------------------PL SQL --------------------------------
+
+
+SERVEROUTPUT utilizado para exibir os resultados usando o DBMS.OUTPUT.PUT_line
+
+DECLARE para declarar as variaveis
+UTILIZA BEGIN /END PARA iniciar e finalizar o bloco de código.
+CONCATENAR COM ||
+ATRIBUICAO DE VALORES A VARIAVEL :=
+DBMS_OUTPUT.PUT_LINE não aceita operações entre variaveis, as operacoes devem ser feitas antes de exibi-las
+
+FUNÇÃO FLOOR PARA FORMATAÇÃO DE VALORES retorna apenas a parte inteira !
+
+
+PODE REALIZAR A CRIACAO DE BLOCOS PARA SEPARACAO DE CODIGO UTILIZADO O DELIMITADOR <<''''>> 
+EX: <<EXTERNO>>, <<INTERNO>>
+
+TIPO BOOLEAN SO EXISTE NO PL SQL, DENTRO DO BANCO NÃO É POSSIVEL COLOCA-LO
+
+
+-- INTEGRANDO COMANDOS SQL AO PL SQL
+
+SELECT INTO - atribui o valor do select a uma variavel
+
+-- ESTRUTURAS DE REPETICAO
+
+LOOP - LOOP / END LOOP
+
+WHILE LOOP END LOOP
+
+FOR IN LOOP / END LOOP
+
+-- NVL - recebe 2 variaveis e caso a primeira seja null a segunda é utilizada
+
+-- ATRIBUIÇÃO DE VARIAVEIS
+
+é possivel utlizar o comando '%TYPE' para atribuir tipo a uma variavel ao gerar consulta no banco com select into
+ex: vid_autor TB_AUTOR%TYPE;
+
+ARREY DE VARIAVEIS 
+mesma lógica do '%TYPE' mas agora é adicionado todas as variaveis da tabela selecionada em um array.
+utiliza-se um array para armazenar as variaveis.
+ex: vreg_autor TB_AUTOR%ROWTYPE;
+
+ROWID retorna um campo criptografado relacionado a tabela
+
+
+CURSORES INPLICITOS
+
+SQL%NOTFOUND - verifica se um campo foi alterado ao realizar uma operacao DML
+SQL%ROWCOUNT - mostra a quantidade de linhas afetadas
+
+FOR pode substituir um cursor o select entra direto no for .. in (select ...)
+
+ FOR UPDATE OF/ WHERE CURRENT OF- Permite bloquear o update a apenas um programador do banco por vez, assim outro prog so pode 
+		manipular os dados quando finalizar a instrução.
+
+
+FETCH INTO extrai os dados do cursor para a variavel
+
+-- TRATAMENTO DE ERROS
+EXCEPTION WHEN ... THEN 
+END
+
+TIPOS -- 
+	NO_DATA_FOUND
+	TOO_MANY_ROWS
+	ZERO_DIVIDE
+	OTHERS
+PODE-SE CRIAR UM NOME DE EXCEÇÃO - declare como variavel DATA_INVALIDA EXCEPTION;
+
+PODE-SE USAR MAIS DE UM BEGIN ao usar excepition ele capta o erro e lança na tela e continua a operação do outro BEGIN
+
+RAISE é semelhante ao GO TO voce envia para a linha de tratamento assim que o erro é capurado;
+RAISE_EXCEPTION_ERROR utliza para tratar o e ja imprimir a mensagem - usa codigos de -20000 a -20999 pode padronizar o erro
+
+
+----------------PROCEDURES E FUNÇÕES 
+
+PROCEDURE não retora valor
+FUNÇÃO retora valor
+PARAMENTROS PODEM SER DE ENTRADA, ENTRADA/SAIDA, SAIDA
+ENTRADA - IN
+SAIDA - OUT
+
+
+PODE-SE UTILIZAR PROCEDURES DENTRO DE OUTRAS (ANINHADAS) - uma recebe os parametros de saida da outra como uma variavel
+parametros são criados apos o create procedure entre () e antes do AS, variavel é criada depois do AS sem ()
+
+DUAL - tabela interna do oracle que retorna o valor em um select
+
+FUNCTION USA CREATE OR REPLACE FUNCTION
+E USA RETURN tipo_de_dado ,APOS A DECLARACAO DOS PARAMETROS
+
+-- PODE-SE MANIPULAR AS TABELAS DO BANCO COM PROCEDURES E FUNCTIONS
+
+-----------------------------TRIGGERS
+
+NA MAIORIA DOS CASOS OS TRIGGERS SÃO USADOS em comandos DML
+Pode se definir se o trigger sera disparado BOFORE OR AFTER a excecução do código desejado
+EVENTOS DE SISTEMA - descobrir quem fez
+shutdown servidor 
+statup servidor
+EVENTOS DE USUARIO
+Login
+logoff
+manupuação e criação de tabelas no banco
+
+	CREATE OR REPLACE TRIGGER
+	BEFORE/AFTER INSERT/UPDATE DELETE 
+	FOR EACH ROW	
+
+SQ_NOME_DA_TABELA_NEXTVAL - adiciona o proximo ID no campo
+
+
+
+--PACOTES PACKAGES 
+USADO PARA ARMAZENAR FUNCOES E PROCEDURES PARA REAPROVEITAMENTO DE CODIGO
+
+CREATE OR REPLACE PACKAGE nome_do_pacote AS
+'pode declarar variaveis e constrantes aqui -- opcional'
+FUNCTION nome da funcao (campo1, campo2, ...)
+RETURN tipo de dado retornado;
+END;
+
+CREATE OR REPLACE PACKAGE BODY nome do pacote AS
+FUNCTION nome da funcao (campo1, campo2, ...)
+RETURN tipo de dado retornado
+IS
+BEGIN
+ ..... CODIGO AQUI
+END
+END;
+
+PODE SER USADO OVERLOAD NOS PACOTES 
+
